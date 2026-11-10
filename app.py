@@ -1,6 +1,7 @@
 import os
 import secrets
 import sqlite3
+import tempfile
 from contextlib import closing
 from functools import wraps
 from pathlib import Path
@@ -28,14 +29,17 @@ SUBJECTS = ("Programming", "Databases", "Web development", "Computer systems")
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
+    database_directory = (
+        tempfile.gettempdir() if os.environ.get("VERCEL") else app.instance_path
+    )
     app.config.from_mapping(
         SECRET_KEY=os.environ.get("FLASK_SECRET_KEY", "local-demo-key-change-me"),
-        DATABASE=str(Path(app.instance_path) / "student_demo.sqlite3"),
+        DATABASE=str(Path(database_directory) / "student_demo.sqlite3"),
     )
     if test_config:
         app.config.update(test_config)
 
-    Path(app.instance_path).mkdir(parents=True, exist_ok=True)
+    Path(app.config["DATABASE"]).parent.mkdir(parents=True, exist_ok=True)
     app.teardown_appcontext(close_db)
     init_db(app)
 

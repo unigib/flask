@@ -22,6 +22,18 @@ Open <http://127.0.0.1:5000>.
 The database is created automatically at `instance/student_demo.sqlite3`.
 To initialize it explicitly, run `flask --app app init-db`.
 
+## Deploy to Vercel
+
+Import this repository as a Vercel project and deploy it with the Python
+runtime. Vercel detects the root `app.py` Flask application automatically.
+Set `FLASK_SECRET_KEY` in the project's environment variables to a private,
+random value.
+
+Vercel's function filesystem is not persistent, so this demo uses the function's
+temporary directory for SQLite there. The app can start and run, but tasks may
+reset when the function is recycled. Use a managed database for persistent
+production data.
+
 ## Try it
 
 - Add tasks for Programming, Databases, Web development, or Computer systems.

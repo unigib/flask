@@ -2,6 +2,7 @@ import re
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from app import DEMO_EMAIL, DEMO_PASSWORD, create_app
 
@@ -26,6 +27,18 @@ class StudentHubTests(unittest.TestCase):
         match = re.search(rb'name="csrf_token" value="([^"]+)"', response.data)
         self.assertIsNotNone(match)
         return match.group(1).decode()
+
+    def test_vercel_uses_a_writable_temporary_database_directory(self):
+        with patch.dict("os.environ", {"VERCEL": "1"}), patch(
+            "app.tempfile.gettempdir", return_value=self.temp_dir.name
+        ):
+            app = create_app()
+
+        self.assertEqual(
+            Path(app.config["DATABASE"]),
+            Path(self.temp_dir.name) / "student_demo.sqlite3",
+        )
+        self.assertTrue(Path(app.config["DATABASE"]).is_file())
 
     def login(self):
         response = self.client.get("/")
