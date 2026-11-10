@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Study planner · University of Gibraltar</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dashboard-page">
+  <header class="topbar">
+    <a class="brand-lockup" href="{{ url_for('dashboard') }}">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="">
+      <span>COMPUTING<br><strong>STUDENT HUB</strong></span>
+    </a>
+    <div class="topbar-right">
+      <span class="signed-in">{{ g.user.email }}</span>
+      <form action="{{ url_for('logout') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="button button-quiet" type="submit">Sign out</button>
+      </form>
+    </div>
+  </header>
+  <main class="dashboard-wrap">
+    <section class="welcome-row">
+      <div>
+        <p class="eyebrow">YOUR LEARNING SPACE</p>
+        <h1>Good to see you.</h1>
+        <p class="muted">One small step at a time. What are you working on?</p>
+      </div>
+      <div class="welcome-mark" aria-hidden="true">U<span>G</span></div>
+    </section>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="notice {{ category }}" role="status">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <section class="summary-grid" aria-label="Study task summary">
+      <article class="summary-card">
+        <span class="summary-icon red-icon">↗</span>
+        <div><p>Still to do</p><strong>{{ open_count }}</strong><span>study tasks</span></div>
+      </article>
+      <article class="summary-card">
+        <span class="summary-icon green-icon">✓</span>
+        <div><p>Completed</p><strong>{{ completed_count }}</strong><span>tasks checked off</span></div>
+      </article>
+      <article class="summary-card accent-card">
+        <span class="summary-icon">⌘</span>
+        <div><p>Learning tip</p><strong class="tip-title">Build, then reflect</strong><span>Try explaining your code in plain English.</span></div>
+      </article>
+    </section>
+    <section class="planner-grid">
+      <div class="panel task-panel">
+        <div class="panel-heading">
+          <div><p class="eyebrow">YOUR PLAN</p><h2>Study tasks</h2></div>
+          <span class="task-count">{{ tasks|length }} total</span>
+        </div>
+        {% if tasks %}
+          <ul class="task-list">
+            {% for task in tasks %}
+              <li class="task-item {% if task.is_complete %}is-complete{% endif %}">
+                <form action="{{ url_for('toggle_task', task_id=task.id) }}" method="post" class="toggle-form">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                  <button class="check-button" type="submit" aria-label="{% if task.is_complete %}Mark {{ task.title }} incomplete{% else %}Mark {{ task.title }} complete{% endif %}">
+                    {% if task.is_complete %}✓{% endif %}
+                  </button>
+                </form>
+                <div class="task-details">
+                  <strong>{{ task.title }}</strong>
+                  <span>{{ task.subject }}{% if task.due_date %} <span class="task-separator">·</span> Due {{ task.due_date }}{% endif %}</span>
+                </div>
+                <form action="{{ url_for('delete_task', task_id=task.id) }}" method="post">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                  <button class="delete-button" type="submit" aria-label="Remove {{ task.title }}">×</button>
+                </form>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="empty-state"><span>✦</span><strong>Your next chapter starts here.</strong><p>Add a study task to get going.</p></div>
+        {% endif %}
+      </div>
+      <aside class="panel add-panel">
+        <p class="eyebrow">MAKE A PLAN</p>
+        <h2>Add a task</h2>
+        <p class="muted small-copy">Keep it specific, and make it yours.</p>
+        <form action="{{ url_for('add_task') }}" method="post" class="task-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <label for="title">What will you work on?</label>
+          <input id="title" name="title" maxlength="120" placeholder="e.g. Practise Python loops" required>
+          <label for="subject">Subject</label>
+          <select id="subject" name="subject" required>
+            {% for subject in subjects %}<option value="{{ subject }}">{{ subject }}</option>{% endfor %}
+          </select>
+          <label for="due_date">Due date <span class="optional">(optional)</span></label>
+          <input id="due_date" name="due_date" type="date">
+          <button class="button button-primary full-width" type="submit">Add to my plan <span aria-hidden="true">+</span></button>
+        </form>
+        <div class="database-note"><span class="database-icon">▤</span><span><strong>Powered by SQLite</strong><br>Your tasks are stored in a local database.</span></div>
+      </aside>
+    </section>
+    <footer class="page-footer"><span>UNIVERSITY OF GIBRALTAR</span><span>LEARN · BUILD · DISCOVER</span></footer>
+  </main>
+</body>
+</html>

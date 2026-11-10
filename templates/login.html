@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · University of Gibraltar</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="login-page">
+  <main class="login-layout">
+    <section class="login-brand">
+      <img class="university-logo" src="{{ url_for('static', filename='logo.png') }}" alt="University of Gibraltar">
+      <p class="eyebrow">School of Computing</p>
+      <h1>Make ideas<br>work in code.</h1>
+      <p class="brand-copy">A little space to keep your computer science learning moving forward.</p>
+      <div class="brand-foot">LEARN · BUILD · DISCOVER</div>
+    </section>
+    <section class="login-card" aria-labelledby="login-title">
+      <div class="mobile-logo">
+        <img class="university-logo" src="{{ url_for('static', filename='logo.png') }}" alt="University of Gibraltar">
+      </div>
+      <p class="eyebrow">STUDENT WORKSPACE</p>
+      <h2 id="login-title">Welcome back</h2>
+      <p class="muted">Sign in to pick up where you left off.</p>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="notice {{ category }}" role="alert">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      <form method="post" class="login-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label for="email">University email</label>
+        <input id="email" name="email" type="email" autocomplete="username" placeholder="you@university.edu" required autofocus>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+        <button class="button button-primary full-width" type="submit">Sign in <span aria-hidden="true">→</span></button>
+      </form>
+      <div class="demo-hint">
+        <span class="hint-dot"></span>
+        <span><strong>Try the demo</strong><br>student@gibraltar.edu · learnflask</span>
+      </div>
+      <p class="login-note">Learning demonstrator · no real student data</p>
+    </section>
+  </main>
+</body>
+</html>
